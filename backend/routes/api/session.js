@@ -72,7 +72,7 @@ router.post(
       const { user } = req;
       if (user) {
         const safeUser = {
-          id: user.id,
+          ownerId: user.id,
           email: user.email,
           username: user.username,
           firstName: user.firstName,
