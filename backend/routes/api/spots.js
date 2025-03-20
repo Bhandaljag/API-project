@@ -1,7 +1,8 @@
 'use strict';
 
 const express = require('express');
-const { Spot, SpotImage, User} = require('../../db/models');
+const { Review, ReviewImage, User, Spot, SpotImage } = require('../../db/models');
+const { validateReview } = require('../../utils/validation');
 const { requireAuth } = require('../../utils/auth');
 const { check } = require('express-validator');
 const { handleValidationErrors } = require('../../utils/validation');
@@ -11,9 +12,7 @@ const router = express.Router();
 
 const validateSpot = [
 
-    // check('ownerId')
-    // .exists({checkFalsy: true})
-    // .isInt(),
+    
     check('address')
     .notEmpty()
     .withMessage('Adress is required'),
@@ -70,7 +69,43 @@ router.get('/', validateQueryFilters, async (req, res) => {
 
    return res.json({spots, page, size});
     
-})
+});
+
+// GET /api/spots/:spotId/reviews - Get all reviews for a spot
+router.get('/:spotId/reviews', async (req, res) => {
+    try {
+      const { spotId } = req.params;
+  
+      // Check if the spot exists
+      const spot = await Spot.findByPk(spotId);
+      if (!spot) {
+        return res.status(404).json({ message: 'Spot not found' });
+      }
+  
+      // Get all reviews for this spot
+      const reviews = await Review.findAll({
+        where: { spotId },
+        include: [
+          {
+            model: User,
+            attributes: ['id', 'username'],
+          },
+          {
+            model: ReviewImage,
+            attributes: ['id', 'url'],
+          },
+        ],
+        order: [['createdAt', 'DESC']], // Newest reviews first
+      });
+  
+      // Return the reviews
+      res.json({ Reviews: reviews });
+    } catch (error) {
+      console.error('Error fetching reviews for spot:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+  
 
 router.get('/current', requireAuth, async (req, res) => {
 
@@ -114,6 +149,42 @@ router.post('/', requireAuth, validateSpot, async (req, res) => {
     return res.status(201).json({ spot });
 
 });
+
+// POST /api/spots/:spotId/reviews - Create a new review for a spot
+router.post('/:spotId/reviews', requireAuth, validateReview, async (req, res) => {
+    try {
+      const { spotId } = req.params;
+      const userId = req.user.id;
+      const { review, stars } = req.body;
+  
+      // Check if the spot exists
+      const spot = await Spot.findByPk(spotId);
+      if (!spot) {
+        return res.status(404).json({ message: 'Spot not found' });
+      }
+  
+      // Check if the user already has a review for this spot
+      const existingReview = await Review.findOne({ where: { spotId, userId } });
+      if (existingReview) {
+        return res.status(500).json({ message: 'User already has a review for this spot' });
+      }
+  
+      // Create a new review
+      const newReview = await Review.create({
+        spotId,
+        userId,
+        review,
+        stars,
+      });
+  
+      // Return the newly created review
+      res.status(201).json(newReview);
+    } catch (error) {
+      console.error('Error creating review:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+  
 
 router.post('/:id/images', requireAuth, async (req, res) => {
 
