@@ -1,6 +1,7 @@
 'use strict';
 
 const { User, Spot, Review, ReviewImage } = require('../models');
+const { Op } = require('sequelize');
 
 let options = {};
 if (process.env.NODE_ENV === 'production') {
@@ -9,9 +10,10 @@ if (process.env.NODE_ENV === 'production') {
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface, Sequelize) {
+  async up(queryInterface, Sequelize) {
+    // Fetch users by usernames
     const users = await User.findAll({
-      where: { username: ['Demo-lition', 'FakeUser1', 'FakeUser2'] },
+      where: { username: { [Op.in]: ['Demo-lition', 'FakeUser1', 'FakeUser2'] } },
     });
 
     const demoUser = users.find(user => user.username === 'Demo-lition');
@@ -20,11 +22,13 @@ module.exports = {
 
     // Fetch all spots
     const spots = await Spot.findAll();
+
+    // Ensure required users and spots exist
     if (spots.length < 3 || !demoUser || !user1 || !user2) {
-      console.error('Not enough spots or users exist for seeding reviews.');
-      return;
+      throw new Error('Seeding failed: Not enough spots or users exist.');
     }
 
+    // Create reviews
     const reviews = await Review.bulkCreate([
       { spotId: spots[0].id, userId: user1.id, review: 'Amazing place!', stars: 5 },
       { spotId: spots[0].id, userId: user2.id, review: 'Very nice, but a bit expensive.', stars: 4 },
@@ -32,6 +36,11 @@ module.exports = {
       { spotId: spots[1].id, userId: user2.id, review: 'It was okay, nothing special.', stars: 3 },
       { spotId: spots[2].id, userId: user1.id, review: 'Best experience ever!', stars: 5 },
     ]);
+
+    // Ensure reviews were created before adding review images
+    if (!reviews.length) {
+      throw new Error('Seeding failed: No reviews were created.');
+    }
 
     // Add sample review images
     await ReviewImage.bulkCreate([
@@ -41,10 +50,11 @@ module.exports = {
     ]);
   },
 
-  
-
-  async down (queryInterface, Sequelize) {
-    await queryInterface.bulkDelete('ReviewImages', null, options);
-    await queryInterface.bulkDelete('Reviews', null, options);
+  async down(queryInterface, Sequelize) {
+    options.tableName = 'ReviewImages';
+    await queryInterface.bulkDelete(options, null, {});
+    
+    options.tableName = 'Reviews';
+    await queryInterface.bulkDelete(options, null, {});
   }
 };

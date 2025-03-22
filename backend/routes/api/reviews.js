@@ -3,28 +3,28 @@
 const express = require('express');
 const { Review, ReviewImage, User, Spot, SpotImage } = require('../../db/models');
 const { requireAuth } = require('../../utils/auth');
-const { check, validationResult } = require('express-validator');
+const { validateReview } = require ('../../utils/validation');
 const { Op } = require('sequelize');
 
 const router = express.Router();
 
 // **Validation middleware for reviews**
-const validateReview = [
-  check('reviews')
-    .exists({ checkFalsy: true })
-    .withMessage('Review text is required'),
-  check('stars')
-    .exists({ checkFalsy: true })
-    .isInt({ min: 1, max: 5 })
-    .withMessage('Stars must be an integer between 1 and 5'),
-  (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-    next();
-  },
-];
+// const validateReview = [
+//   check('reviews')
+//     .exists({ checkFalsy: true })
+//     .withMessage('Review text is required'),
+//   check('stars')
+//     .exists({ checkFalsy: true })
+//     .isInt({ min: 1, max: 5 })
+//     .withMessage('Stars must be an integer between 1 and 5'),
+//   (req, res, next) => {
+//     const errors = validationResult(req);
+//     if (!errors.isEmpty()) {
+//       return res.status(400).json({ errors: errors.array() });
+//     }
+//     next();
+//   },
+// ];
 
 // GET /api/reviews/current - Get current user's reviews
 router.get('/current', requireAuth, async (req, res) => {
@@ -94,7 +94,7 @@ router.post('/:reviewId/images', requireAuth, async (req, res) => {
     }
 
     // Limit check: Only allow up to 10 images per review
-    if ((review.ReviewImages.length || 0) >= 10) {
+    if (review.ReviewImages.length  >= 10) {
       return res.status(403).json({ message: 'Maximum number of images for this review reached (10)' });
     }
 
