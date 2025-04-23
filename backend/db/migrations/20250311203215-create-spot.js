@@ -80,12 +80,8 @@ module.exports = {
   },
   async down(queryInterface, Sequelize) {
 
-    const options = {};
-
-    if (process.env.NODE_ENV === 'production') {
-      options.schema = process.env.SCHEMA;
-    }
+   options.tableName = 'Spots';
     
-    await queryInterface.dropTable('Spots', options);
+    await queryInterface.dropTable( options);
   }
 };

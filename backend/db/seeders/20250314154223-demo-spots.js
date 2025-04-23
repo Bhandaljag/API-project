@@ -112,12 +112,12 @@ if (process.env.NODE_ENV === 'production') {
 
     options.tableName = 'SpotImages';
 
-    await queryInterface.bulkDelete('SpotImages', {
+    await queryInterface.bulkDelete(options, {
       spotId: {[Op.ne]: null},
-    }, options);
+    });
 
     options.tableName = 'Spots';
-    await queryInterface.bulkDelete('Spots', {
+    await queryInterface.bulkDelete(options, {
       name: { [Op.in]: ['App Academy', 'Sunny Store', 'Lookout Mountain Park']},
     }, options);
     
