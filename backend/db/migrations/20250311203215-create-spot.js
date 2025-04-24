@@ -15,7 +15,7 @@ module.exports = {
     await queryInterface.createTable('Spots', {
       id: {
         allowNull: false,
-        autoIncrement: false,
+        autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
