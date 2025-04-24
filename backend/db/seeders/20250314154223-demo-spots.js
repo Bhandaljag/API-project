@@ -7,6 +7,7 @@ if (process.env.NODE_ENV === 'production') {
   options.schema = process.env.SCHEMA;
 }
 
+options.tableName = "Users"
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
@@ -17,7 +18,7 @@ module.exports = {
       return;
     }
 
-    const spots = await Spot.bulkCreate([
+    const spots = await Spot.bulkCreate(options, [
       {
         ownerId: demoUser.id,
         address: '95 3rd St 2nd Floor',
@@ -54,7 +55,7 @@ module.exports = {
         description: 'Viewpoint',
         price: 15
       }
-    ], { ...options, validate: true });
+    ], { validate: true });
 
     await SpotImage.bulkCreate([
       {
