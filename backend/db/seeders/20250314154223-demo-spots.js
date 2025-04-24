@@ -7,11 +7,11 @@ if (process.env.NODE_ENV === 'production') {
   options.schema = process.env.SCHEMA;
 }
 
-options.tableName = "Users"
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    const demoUser = await User.schema(options.schema).findOne({
+    // Find the demo user
+    const demoUser = await User.findOne({
       where: { username: 'Demo-lition' }
     });
 
@@ -20,7 +20,8 @@ module.exports = {
       return;
     }
 
-    const spots = await Spot.bulkCreate(options, [
+    // Create spots for the demo user
+    const spots = await Spot.bulkCreate([
       {
         ownerId: demoUser.id,
         address: '95 3rd St 2nd Floor',
@@ -57,8 +58,12 @@ module.exports = {
         description: 'Viewpoint',
         price: 15
       }
-    ], { validate: true });
+    ], {
+      validate: true,
+      schema: options.schema
+    });
 
+    // Create spot images
     await SpotImage.bulkCreate([
       {
         spotId: spots[0].id,
@@ -80,18 +85,22 @@ module.exports = {
         url: 'https://example.com/test-image-4.jpg',
         preview: true
       }
-    ]);
+    ], {
+      schema: options.schema
+    });
   },
 
   async down (queryInterface, Sequelize) {
     const Op = Sequelize.Op;
 
     options.tableName = 'SpotImages';
+    // Delete SpotImages
     await queryInterface.bulkDelete(options, {
       spotId: { [Op.ne]: null }
     });
 
     options.tableName = 'Spots';
+    // Delete Spots
     await queryInterface.bulkDelete(options, {
       name: {
         [Op.in]: ['App Academy', 'Sunny Store', 'Lookout Mountain Park']
