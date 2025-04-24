@@ -11,7 +11,9 @@ options.tableName = "Users"
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    const demoUser = await User.findOne({ where: { username: 'Demo-lition' } });
+    const demoUser = await User.schema(options.schema).findOne({
+      where: { username: 'Demo-lition' }
+    });
 
     if (!demoUser) {
       console.error('User "Demo-lition" not found');
@@ -78,7 +80,7 @@ module.exports = {
         url: 'https://example.com/test-image-4.jpg',
         preview: true
       }
-    ], options);
+    ]);
   },
 
   async down (queryInterface, Sequelize) {
