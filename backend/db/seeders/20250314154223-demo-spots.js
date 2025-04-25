@@ -20,8 +20,10 @@ module.exports = {
       return;
     }
 
+    
+
     // Create spots for the demo user
-    const spots = await Spot.bulkCreate([
+    const spots = await Spot.bulkCreate( [
       {
         ownerId: demoUser.id,
         address: '95 3rd St 2nd Floor',
@@ -60,11 +62,12 @@ module.exports = {
       }
     ], {
       validate: true,
-      schema: options.schema
+      
     });
 
     // Create spot images
-    await SpotImage.bulkCreate([
+  
+    await SpotImage.bulkCreate( [
       {
         spotId: spots[0].id,
         url: 'https://example.com/test-image.jpg',
@@ -85,9 +88,9 @@ module.exports = {
         url: 'https://example.com/test-image-4.jpg',
         preview: true
       }
-    ], {
-      schema: options.schema
-    });
+    ] 
+     
+    );
   },
 
   async down (queryInterface, Sequelize) {
