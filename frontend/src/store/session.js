@@ -57,6 +57,15 @@ export const restoreUser = () => async (dispatch) => {
     return response;
   };
 
+  // Thunk logout
+  export const logout = () => async (dispatch) => {
+    const response = await csrfFetch('/api/session', {
+      method: 'DELETE'
+    });
+    dispatch(removeUser());
+    return response;
+  };
+
 
 // Initial state
 const InitialState = {user: null};
