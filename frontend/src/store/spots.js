@@ -1,24 +1,24 @@
-import { csrfFetch } from "./csrf";
+import { csrfFetch } from "./csrf"; //
 
 const LOAD_SPOTS = 'spots/loadSpots'
 
-const loadSpots = (spots) => ({
+const loadSpots = (spots) => ({  // Action creater 
     type: LOAD_SPOTS,
     spots
 });
 
 export const fetchSpots = () => async (dispatch) => {
-    const res = await csrfFetch('/api/spots');
+    const res = await csrfFetch('/api/spots'); // fetch from backend 
     const data = await res.json();
-    dispatch(loadSpots(data.Spots));
+    dispatch(loadSpots(data.spots));
 };
 
-const spotsReducer = (state = {}, action) => {
+const spotsReducer = (state = {}, action) => { // Redux reducer for spots 
     switch (action.type) {
-        case LOAD_SPOTS:{
-            const newState = {};
+        case LOAD_SPOTS:{                       // <== revieves action 
+            const newState = {};                // <== creates new object
             action.spots.forEach(spot => {
-                newState[spot.id] = spot;
+                newState[spot.id] = spot;       // iterates over each spot and saves it in state by its keyed id
             });
             return newState;
         }
