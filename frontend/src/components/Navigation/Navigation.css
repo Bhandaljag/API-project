@@ -1,3 +1,15 @@
-NavLink {
-    display: flex
+.nav-container {
+    display: flex;
+    justify-content: space-between;
+}
+
+.navigation {
+    display: flex;
+}
+
+.nav-item-left {
+    flex: start;
+    /* object-fit: contain;
+    height: 100px;
+    margin-left: 20px; */
 }
