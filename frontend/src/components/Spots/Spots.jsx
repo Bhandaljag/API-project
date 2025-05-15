@@ -14,7 +14,7 @@ export default function SpotIndex() {
     return (
         <div className='spot-list'>
         {spots.map(spot => (
-            <Link key={spots.id} to={`/spots/${spots.id}`}>
+            <Link key={spot.id} to={`/spots/${spot.id}`}>
                 <div className='spot-tile'>
                     <img src={spots.previewImage} alt='spot-image' />
                     <h3>{spot.name}</h3>

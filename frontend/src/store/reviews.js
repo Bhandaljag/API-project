@@ -1,42 +1,37 @@
 import { csrfFetch } from "./csrf";
 
-const LOAD_REVIEWS = 'reviews/loadReviews'; // Action Types
+const LOAD_SPOT_REVIEWS = 'reviews/loadSpotReviews';
 
-const loadReviews = (reviews, spotId) => ({ // Action Creators
-    type: LOAD_REVIEWS,
-    reviews,
-    spotId
+const loadSpotReviews = (spotId, reviews) => ({
+    type: LOAD_SPOT_REVIEWS,
+    spotId,
+    reviews
 });
 
-// Thunk: Fetch reviews for a given spot
 export const fetchSpotReviews = (spotId) => async (dispatch) => {
     const res = await csrfFetch(`/api/spots/${spotId}/reviews`);
     const data = await res.json();
-    dispatch(loadReviews(data.Reviews, spotId));
-}
-    //reducer
+    dispatch(loadSpotReviews(spotId, data.Reviews));
+};
 
-    const reviewsReducer = (state = {}, action) => {
-        switch (action.type) {
-            case LOAD_REVIEWS: {
-                const newState = {...state};
-                newState[action.spotId] = {};
-
-                action.reviews.forEach(review => {
-                    newState[action.spotId][review.id] = review;
-                });
-
-                return newState;
-            }
-
-            default:
-                return state;
-
-    
-            
+const initialState = {};
+const reviewsReducer = (state = initialState, action) => {
+    switch (action.type) {
+        case LOAD_SPOT_REVIEWS: {
+            const newState = { ...state };
+            newState[action.spotId] = {};
+            action.reviews.forEach(review => {
+                newState[action.spotId][review.id] = review
+            });
+            return newState;
+        
         }
-    };
+        default:
+        return state;
+    }
+};
 
-    export default reviewsReducer;
+export default reviewsReducer;
+
 
 
