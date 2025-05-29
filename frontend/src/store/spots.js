@@ -1,46 +1,73 @@
 import { csrfFetch } from "./csrf"; //
 
-const LOAD_SPOTS = 'spots/loadSpots'
+//Action Types
+const SET_SPOTS = 'spots/setSpots';
+const CLEAR_SPOTS = 'spots/clearSpots';
+const REMOVE_SPOTS = 'spots/removeSpot';
 
-
-const loadSpots = (spots) => ({  // Action creater 
-    type: LOAD_SPOTS,
-    spots
+//Action Creators
+const setSpots = (spots) => ({
+    type: SET_SPOTS,
+    payload: spots
 });
 
+const clearSpots = () => ({
+    type: CLEAR_SPOTS
+});
 
+const removeSpot = (spotId) => ({
+    type: REMOVE_SPOTS,
+    payload: spotId
+});
 
-// Thunk get all spots index
+//Thunk: Fetch all spots
 export const fetchSpots = () => async (dispatch) => {
-    const res = await csrfFetch('/api/spots'); // fetch from backend 
-    const data = await res.json();
-    dispatch(loadSpots(data.spots));
+    const response = await csrfFetch('/api/spots');
+    const data = await response.json();
+    dispatch(setSpots(data.spots));
+    return response;
 };
 
-// Thunk details for a single spot
+//Thunk: Fetch a single spot's details
 export const fetchSpotDetails = (spotId) => async (dispatch) => {
-    
-        const res = await csrfFetch(`/api/spots/${spotId}`); 
-        const data = await res.json();
-        dispatch(loadSpots([data.spot]));
-    } 
+    const response = await csrfFetch(`/api/spots/${spotId}`)
+    const data = await response.json();
+    dispatch(setSpots([data.spot]));
+    return response
+};
 
+//Thunk: Delete a spot
+export const deleteSpot = (spotId) => async (dispatch) => {
+    const response = await csrfFetch(`/api/spots/${spotId}`, {
+        method: 'DELETE'
+    });
+    dispatch(removeSpot(spotId));
+    return response;
+}
 
-const spotsReducer = (state = {}, action) => { // Redux reducer for spots 
+//Initial State
+const InitialState = {spot: {} };
+
+//Reducer
+const spotsReducer = (state = InitialState, action) => {
     switch (action.type) {
-        case LOAD_SPOTS:{                       // <== revieves action 
-            const newState = {};                // <== creates new object
-            action.spots.forEach(spot => {
-                newState[spot.id] = spot;       // iterates over each spot and saves it in state by its keyed id
-            });
+        case SET_SPOTS: {
+            const newSpots = {};
+            action.payload.forEach(spot => {
+                newSpots[spot.id] = spot;
+            })
+            return {...state, spots: newSpots};
+        }
+        case REMOVE_SPOTS: {
+            const newState = {...state, spots: {...state.spots}};
+            delete newState.spots[action.payload];
             return newState;
         }
-        
-        
+        case CLEAR_SPOTS:
+            return {...state, spots: {} };
             default:
                 return state;
-    
     }
-}
+};
 
 export default spotsReducer

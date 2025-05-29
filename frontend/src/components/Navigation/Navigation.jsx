@@ -8,10 +8,12 @@ function Navigation({ isLoaded }) {
 
   return (
    <>
-    <img className="logo" src="/692.jpg" alt="Logo" />
-    <ul className='navigation'>
+   <ul className='navigation'>
       <li className='nav-left'>
-        <NavLink to="/">Home</NavLink>
+         <NavLink to="/"> 
+        {/* className="logo-link"> */} 
+          <img className="logo" src="/692.jpg" alt="Logo" />
+        </NavLink>
       </li>
       {isLoaded && (
         <li className='nav-right'>

@@ -1,15 +1,14 @@
-.nav-container {
-    display: flex;
-    justify-content: space-between;
-}
 
 .navigation {
     display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 24px;
+    border-bottom: 1px solid #ddd;
 }
 
-.nav-item-left {
-    flex: start;
-    /* object-fit: contain;
+.logo {
     height: 100px;
-    margin-left: 20px; */
+    object-fit: contain;
+    
 }
