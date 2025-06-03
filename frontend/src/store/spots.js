@@ -4,6 +4,7 @@ import { csrfFetch } from "./csrf"; //
 const SET_SPOTS = 'spots/setSpots';
 const CLEAR_SPOTS = 'spots/clearSpots';
 const REMOVE_SPOTS = 'spots/removeSpot';
+const ADD_SPOT = 'spots/addSpot'
 
 //Action Creators
 const setSpots = (spots) => ({
@@ -19,6 +20,11 @@ const removeSpot = (spotId) => ({
     type: REMOVE_SPOTS,
     payload: spotId
 });
+
+const addSpot = (spot) => ({
+    type: ADD_SPOT,
+    payload: spot
+})
 
 //Thunk: Fetch all spots
 export const fetchSpots = () => async (dispatch) => {
@@ -43,10 +49,26 @@ export const deleteSpot = (spotId) => async (dispatch) => {
     });
     dispatch(removeSpot(spotId));
     return response;
-}
+};
+
+//Create a new spot
+export const createSpot = (spotData) => async (dispatch) => {
+    const response = await csrfFetch('/api/spots', {
+        method: 'POST',
+        header: {'Content-Type': 'application/json'},
+        body: JSON.stringify(spotData),
+    });
+    if (response.ok) {
+        const data = await response.json();
+        dispatch(addSpot(data.spot));
+        return data.spot;
+    } else {
+        throw  response;
+    }
+};
 
 //Initial State
-const InitialState = {spot: {} };
+const InitialState = {spots: {} };
 
 //Reducer
 const spotsReducer = (state = InitialState, action) => {
@@ -57,6 +79,10 @@ const spotsReducer = (state = InitialState, action) => {
                 newSpots[spot.id] = spot;
             })
             return {...state, spots: newSpots};
+        }
+        case ADD_SPOT: {
+            return {...state, spots: {...state.spots,
+                [action.payload.id]: action.payload}}
         }
         case REMOVE_SPOTS: {
             const newState = {...state, spots: {...state.spots}};

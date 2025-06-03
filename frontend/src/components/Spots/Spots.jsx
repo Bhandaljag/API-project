@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 
 export default function SpotIndex() {
     const dispatch = useDispatch();
-    const spots = Object.values(useSelector(state => state.spots));
+    const spots = Object.values(useSelector(state => state.spots.spots));
 
     useEffect (() => {
         dispatch(fetchSpots());
