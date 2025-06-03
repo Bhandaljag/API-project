@@ -1,11 +1,11 @@
 import { csrfFetch } from "./csrf"; //
 
-// Action Types 
+//Action Types
 const SET_SPOTS = 'spots/setSpots';
 const CLEAR_SPOTS = 'spots/clearSpots';
-const REMOVE_SPOT = 'spots/removeSpot';
+const REMOVE_SPOTS = 'spots/removeSpot';
 
-// Action Creators
+//Action Creators
 const setSpots = (spots) => ({
     type: SET_SPOTS,
     payload: spots
@@ -16,9 +16,9 @@ const clearSpots = () => ({
 });
 
 const removeSpot = (spotId) => ({
-    type: REMOVE_SPOT,
+    type: REMOVE_SPOTS,
     payload: spotId
-})
+});
 
 //Thunk: Fetch all spots
 export const fetchSpots = () => async (dispatch) => {
@@ -28,16 +28,15 @@ export const fetchSpots = () => async (dispatch) => {
     return response;
 };
 
-// Thunk: Fetch a single spot's details
+//Thunk: Fetch a single spot's details
 export const fetchSpotDetails = (spotId) => async (dispatch) => {
     const response = await csrfFetch(`/api/spots/${spotId}`)
     const data = await response.json();
-    // reusing setSpots with an array containing a single spot
     dispatch(setSpots([data.spot]));
-    return response;
+    return response
 };
 
-// Thunk: Delete a spot
+//Thunk: Delete a spot
 export const deleteSpot = (spotId) => async (dispatch) => {
     const response = await csrfFetch(`/api/spots/${spotId}`, {
         method: 'DELETE'
@@ -46,30 +45,29 @@ export const deleteSpot = (spotId) => async (dispatch) => {
     return response;
 }
 
-// Initial State
-const initialState = {spot: {} };
+//Initial State
+const InitialState = {spot: {} };
 
-// Reducer
-const spotsReducer = (state = initialState, action) => {
+//Reducer
+const spotsReducer = (state = InitialState, action) => {
     switch (action.type) {
         case SET_SPOTS: {
             const newSpots = {};
             action.payload.forEach(spot => {
                 newSpots[spot.id] = spot;
-            });
-            return { ...state, spots: newSpots };
+            })
+            return {...state, spots: newSpots};
         }
-        case REMOVE_SPOT: {
-            const newState = { ...state, spots: {...state.spots }};
+        case REMOVE_SPOTS: {
+            const newState = {...state, spots: {...state.spots}};
             delete newState.spots[action.payload];
             return newState;
         }
         case CLEAR_SPOTS:
             return {...state, spots: {} };
-        default:
-            return state;
+            default:
+                return state;
     }
 };
 
-export default spotsReducer;
-          
+export default spotsReducer
