@@ -9,7 +9,7 @@ export default function SpotDetails() {
     const { spotId } = useParams();
     const dispatch = useDispatch();
 
-    const spot = useSelector(state => state.spots[spotId]);
+    const spot = useSelector(state => state.spots.spots[spotId]);
     const reviewObj = useSelector(state => state.reviews[spotId]);
     const reviews = reviewObj ? Object.values(reviewObj) : [];
 
